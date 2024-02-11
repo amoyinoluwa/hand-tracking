@@ -24,7 +24,7 @@ class DataProcessor:
 
     def process_data(self):
         for i in range(1, 4):
-            curr_data = self.read_path(f'../data/Gesture-{i}')
+            curr_data = self.read_path(f'./data/Gesture-{i}')
             self.all_data.extend(curr_data)
             self.all_labels.extend([f'gesture{i}' for _ in range(len(curr_data))])
         features = np.array(self.all_data)

@@ -9,7 +9,11 @@ from sklearn.preprocessing import LabelEncoder
 class HandMovementPredictor:
     def __init__(self) -> None:
         self.num_classes = 3
-        self.X, self.y = DataProcessor.process_data()
+        data_processor = DataProcessor()
+        encoder = LabelEncoder()
+        self.X, self.y = data_processor.process_data()
+        y_one_hot = encoder.fit_transform(self.y)
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, y_one_hot, test_size=0.2, random_state=42)
 
     def create_model(self):
         model = Sequential()
@@ -24,18 +28,23 @@ class HandMovementPredictor:
         return model
 
     def train_model(self, save_model_checkpoint=True):
-        encoder = LabelEncoder()
-        y_one_hot = encoder.fit_transform(self.y)
-        X_train, _, y_train, _ = train_test_split(self.X, y_one_hot, test_size=0.2, random_state=42)
         model = self.create_model()
         if not save_model_checkpoint:
-            model.fit(X_train, y_train, epochs=50, validation_split=0.15)
+            model.fit(self.X_train, self.y_train, epochs=50, validation_split=0.15)
             return
         model_checkpoint = 'ml_model.ckpt'
-        _callback = tf.keras.callbacks.ModelCheckpoint(filepath=model_checkpoint,
-                                                        save_weights_only=True,
-                                                        verbose=1)
-        model.fit(X_train, y_train, epochs=50, validation_split=0.15, callbacks=[_callback])
+        # _callback = tf.keras.callbacks.ModelCheckpoint(filepath=model_checkpoint,
+        #                                                 save_weights_only=True,
+        #                                                 verbose=1)
+        model.fit(self.X_train, self.y_train, epochs=50, validation_split=0.15)
+        model.save('pretrained')
+
+predictor = HandMovementPredictor()
+# model = predictor.train_model()
+        
+new_model = tf.keras.models.load_model('pretrained')
+preds = new_model.predict(predictor.X_test)
+print(np.argmax(preds, axis=1))
 
 #sample test
 # handPredictor = HandMovementPredictor()
