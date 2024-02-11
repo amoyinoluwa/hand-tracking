@@ -7,7 +7,7 @@ from data_processing import DataProcessor
 from sklearn.preprocessing import LabelEncoder
 
 class HandMovementPredictor:
-    def __init__(self) -> None:
+    def __init__(self):
         self.num_classes = 3
         data_processor = DataProcessor()
         encoder = LabelEncoder()
@@ -34,6 +34,7 @@ class HandMovementPredictor:
         if not save_model_checkpoint:
             return
         model.save('pretrained')
+        self.model_checkpoint_saved = True
 
     def get_prediction(self, arg=None):
         if arg is None:
@@ -44,8 +45,8 @@ class HandMovementPredictor:
         preds = new_model.predict(arg)
         return np.argmax(preds, axis=1)
 
-#sample test
+# sample test
 # handPredictor = HandMovementPredictor()
-# handPredictor.train_model()
-# predictions = handPredictor.predict(X_test)
+# data = np.array([1,2,3],[4,5,6])
+# predictions = handPredictor.get_prediction(data)
 # predicted_classes = np.argmax(predictions, axis=1)
