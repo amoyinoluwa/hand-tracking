@@ -37,6 +37,8 @@ class HandMovementPredictor:
                                                         verbose=1)
         model.fit(X_train, y_train, epochs=50, validation_split=0.15, callbacks=[_callback])
 
-
-# predictions = model.predict(X_test)
+#sample test
+# handPredictor = HandMovementPredictor()
+# handPredictor.train_model()
+# predictions = handPredictor.predict(X_test)
 # predicted_classes = np.argmax(predictions, axis=1)
