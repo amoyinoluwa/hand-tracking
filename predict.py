@@ -7,12 +7,13 @@ from data_processing import DataProcessor
 from sklearn.preprocessing import LabelEncoder
 
 class HandMovementPredictor:
-    def __init__(self) -> None:
+    def __init__(self):
         self.num_classes = 3
         data_processor = DataProcessor()
         encoder = LabelEncoder()
         self.X, self.y = data_processor.process_data()
         y_one_hot = encoder.fit_transform(self.y)
+        self.model_checkpoint_saved = False
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, y_one_hot, test_size=0.2, random_state=42)
 
     def create_model(self):
@@ -29,25 +30,23 @@ class HandMovementPredictor:
 
     def train_model(self, save_model_checkpoint=True):
         model = self.create_model()
-        if not save_model_checkpoint:
-            model.fit(self.X_train, self.y_train, epochs=50, validation_split=0.15)
-            return
-        model_checkpoint = 'ml_model.ckpt'
-        # _callback = tf.keras.callbacks.ModelCheckpoint(filepath=model_checkpoint,
-        #                                                 save_weights_only=True,
-        #                                                 verbose=1)
         model.fit(self.X_train, self.y_train, epochs=50, validation_split=0.15)
+        if not save_model_checkpoint:
+            return
         model.save('pretrained')
+        self.model_checkpoint_saved = True
 
-predictor = HandMovementPredictor()
-# model = predictor.train_model()
-        
-new_model = tf.keras.models.load_model('pretrained')
-preds = new_model.predict(predictor.X_test)
-print(np.argmax(preds, axis=1))
+    def get_prediction(self, arg=None):
+        if arg is None:
+            arg = self.X_test
+        if not self.model_checkpoint_saved:
+            self.train_model()
+        new_model = tf.keras.models.load_model('pretrained')
+        preds = new_model.predict(arg)
+        return np.argmax(preds, axis=1)
 
-#sample test
+# sample test
 # handPredictor = HandMovementPredictor()
-# handPredictor.train_model()
-# predictions = handPredictor.predict(X_test)
+# data = np.array([1,2,3],[4,5,6])
+# predictions = handPredictor.get_prediction(data)
 # predicted_classes = np.argmax(predictions, axis=1)
